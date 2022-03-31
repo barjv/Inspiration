@@ -1,0 +1,13 @@
+module array_device
+contains
+attributes(global) subroutine sum(a,b)
+implicit none
+integer :: a(:)
+integer :: b(:)
+integer :: i
+
+i = threadIdx%x
+a(i) = a(i) + b(i)
+
+end subroutine sum
+end module array_device

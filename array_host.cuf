@@ -1,0 +1,23 @@
+program array_host
+use cudafor
+use array_device
+implicit none
+integer :: n = 256
+integer, allocatable :: a(:), b(:)
+integer, allocatable, device :: a_d(:), b_d(:)
+
+allocate(a(n), b(n), a_d(n), b_d(n))
+a = 5
+b = 4
+
+a_d = a
+b_d = b
+call sum <<<1,n>>> (a_d, b_d)
+a = a_d
+b = b_d
+
+if (all(a == 9)) &
+write(*,*) 'Test Passed'
+
+deallocate(a, b, a_d(n), b_d(n))
+end program array_host

@@ -1,0 +1,18 @@
+program Kernel
+use cudafor
+implicit none
+integer :: i
+integer, parameter :: n = 256
+integer, device :: a_d(n), b_d(n)
+
+a = 1; b = 3; a_d = a; b_d = b
+
+!$cuf kernel do <<<*,*>>> 
+do i = 1, n
+a_d(i) = a_d(i) + b_d(i)
+end do
+
+a = a_d
+
+if (all(a == 4)) write(*,*) 'Test passed'
+end program Kernel
