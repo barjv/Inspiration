@@ -1,0 +1,44 @@
+program fourier
+use cudafor
+use cufft
+
+implicit none
+integer :: k
+integer, parameter :: n = 512
+real, parameter :: PI = 3.141593
+real :: m, x0, a, dx
+real(8) :: x(n), p(n), s(n)
+complex(8), managed :: g(n), f(n)
+
+ integer plan, ierr
+
+x0 = 10.0
+a = 2.0
+dx = 0.1
+m = 0.0
+
+do k = 1, n
+x(k) = m
+g(k) = exp(-((m-x0)**2)/(2*a**2))
+if (k <= n/2) p(k) = 2*PI*(k-1)/(dx*n)
+if (k > n/2 .and. k < n) then
+p(k) = 2*PI*(k-n-1)/(dx*n)
+end if
+m = m + dx
+end do
+
+  ierr = cufftPlan1D(plan,n,CUFFT_Z2Z, 1)
+    ierr = ierr + cufftExecZ2Z(plan,g,f,CUFFT_FORWARD)
+    ierr = ierr + cudaDeviceSynchronize()
+
+  s = abs(f)
+
+   open (1, file = 'data1.cuf')
+   do k = 1, n-1
+      write(1,*)  p(k), s(k)
+   end do
+
+
+ close(1)
+
+end program fourier
